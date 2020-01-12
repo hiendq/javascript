@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+           table button{
+                width: 30px;
+                height: 30px;
+            }
+            table button:hover {
+                background: rgba(0, 0, 0, 0.1);
+            }
+    </style>
+</head>
+<body>
+    <input type="text" name="" id="row">
+    <input type="text" name="" id="column">
+    <button id="play">Play</button>
+    <div id="caro"></div>
+    <div id="win"></div>
+</body>
+<script>
+    const row = document.querySelector('#row');
+    const column = document.querySelector('#column');
+    const play = document.querySelector('#play');
+    const caro = document.querySelector('#caro');
+    const win = document.querySelector('#win');
+    
+      function createBoard() {
+        var resum = "<table cellpadding='0' cellspacing='0' disabled>";
+       for (let i=0; i<row.value; i++)
+         {
+             resum +="<tr disabled>";
+             for (let j=0;j<column.value;j++){
+                 resum += "<td>";
+                 resum += `<button id="but${i}_${j}"></button>`;
+                 resum += "</td>";
+             }
+             resum += "</tr>";
+         }
+         resum +="</table>";
+        caro.innerHTML = resum;
+    }
+
+    var points;   
+    win.style.fontsize = '24px';
+    let objA = {};
+    let objB = {};
+    window.addEventListener('DOMSubtreeModified', function() { 
+        let i=1;
+     points = document.querySelectorAll('button[id*=but]');
+     points.forEach(point => {
+        point.addEventListener('click', function(e){
+            if (e.target.textContent) return;
+            if (i%2===0){
+                e.target.textContent ="0";
+                e.target.style.color ='red';
+                objA[`${this.id[3]}${this.id[5]}`] = 1;
+                if (checkRow(objA, this.id[3], this.id[5]) || checkColumn(objA, this.id[3], this.id[5]) || checkcrossLeft(objA, this.id[3], this.id[5]) || checkcrossRight(objA, this.id[3], this.id[5]))
+                {
+                    win.textContent = '0 Win';
+                    win.style.color = 'red';
+                    play.textContent = 'Play again';
+                }
+            }
+            else {
+                e.target.textContent ="X";
+                e.target.style.color ='green';
+                objB[`${this.id[3]}${this.id[5]}`] = 1;
+                if (checkRow(objB, this.id[3], this.id[5]) || checkColumn(objB, this.id[3], this.id[5]) || checkcrossLeft(objB, this.id[3], this.id[5]) || checkcrossRight(objB, this.id[3], this.id[5]))
+                {
+                    win.textContent = 'X Win';
+                    win.style.color = "yellow";
+                    play.textContent = 'Play again';
+                    caro.disabled = true;
+                }
+
+            }
+            i++;
+            return ;
+        })
+    })
+
+    })
+
+   function checkRow(store, currentX, currentY) {    
+       // kiểm tra hàng ngang
+       let count = 1;
+           let leftY = parseInt(currentY)-1;
+           // kiểm tra bên tay trái 
+           while ( leftY>=0 && store[currentX+leftY--]){
+               count++;
+           }
+           // kiểm tra bên tay phải
+           let rightY = parseInt(currentY)+1;
+           while ( rightY<=parseInt(column.value)-1  && store[currentX+`${rightY}`])
+            {
+                count++;
+                rightY++
+            }
+        
+        if (count>=5)
+         return true;
+        return false;
+   }
+
+   function checkColumn(store, currentX, currentY) {
+       // kiểm tra cột
+       let count = 1;
+       let upX = parseInt(currentX)-1;
+    //    kiểm tra phía trên
+       while (upX>=0 && store[upX+currentY]){
+           count++;
+           upX-=1;
+       }
+    // kiểm tra phí dưới
+       let downX = parseInt(currentX)+1;
+       while (downX<=parseInt(row.value)-1 && store[`${downX}`+currentY])
+       {
+            count++;
+            downX+=1;
+       }
+        if (count>=5)
+        return true;
+        return false
+   }
+
+   function checkcrossLeft(store, currentX, currentY) {
+     // kiểm tra đường chéo trái
+     // kiểm tra phía trên đường chéo trái
+     let count=1;
+     let upCrossX = parseInt(currentX)-1;
+     let upCrossY = parseInt(currentY)-1;
+     while (upCrossX>=0 && upCrossY>=0 && store[`${upCrossX}${upCrossY}`])
+        {
+            count++;
+            upCrossX-=1;
+            upCrossY-=1;
+        }
+        // kiểm tra phía dưới đường chéo trái
+     let downCrossX = parseInt(currentX)+1;
+     let downCrossY = parseInt(currentY)+1;
+     while (downCrossX<=parseInt(row.value)-1 && downCrossY<=parseInt(column.value)-1 && store[`${downCrossX}${downCrossY}`]) {
+        count++;
+        downCrossX+=1;
+        downCrossY+=1;
+     } 
+     if (count>=5)
+     return true;
+     return false;
+   }
+
+   function checkcrossRight(store, currentX, currentY) {
+       // kiểm tra đường chéo phải
+       // kiểm tra phía trên đường chéo phải
+       let count = 1;
+       console.log(store)
+       let upCrossX = parseInt(currentX)-1;
+       let upCrossY = parseInt(currentY)+1;
+    
+       while (upCrossX>=0 && upCrossY<=parseInt(column.value)-1 && store[`${upCrossX}${upCrossY}`]) {
+           count++;
+           upCrossX-=1;
+           upCrossY+=1;
+       }
+    console.log(upCrossX, ' ', upCrossY)
+       // kiểm tra phía dưới đường chéo phải
+       let downCrossX = parseInt(currentX)+1;
+       let downCrossY = parseInt(currentY)-1;
+       while (downCrossX<=parseInt(row.value)-1 && downCrossY>=0 && store[`${downCrossX}${downCrossY}`])
+       {
+           count++;
+           downCrossX+=1;
+           downCrossY-=1;
+       }
+     console.log(count)
+       if (count>=5)
+       return true;
+       return false
+   }
+   play.addEventListener('click', createBoard);
+    // caro.addEventListener('click', run);
+</script>
+</html>

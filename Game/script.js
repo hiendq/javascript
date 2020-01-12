@@ -1,15 +1,18 @@
 var canvas = document.getElementById("myCanvas");
+let stop = document.querySelector('.btn_stop');
 var ctx = canvas.getContext("2d");
 var ballRadius = 10;
 console.log(canvas.width);
 
 var x = canvas.width/2;
 var y = canvas.height-30;
-
 let mau = 0;
 
+
+let startting = false;
 var dx = 2;
 var dy = -2;
+//goc 45 độ
 var paddleHeight = 5;//độ cao của thanh hứng
 var paddleWidth = 105; // độ rộng của thanh hứng
 var paddleX = (canvas.width-paddleWidth)/2;
@@ -89,12 +92,9 @@ function collisionDetection() {
 }
 
 function drawBall() {
-
-
         if (mau >= 360) {
                 mau = 0;
         }
-        console.log('mau '+mau);
         ctx.fillStyle = `hsl(${mau}, 50%, 50%)`;
         ctx.beginPath();
         ctx.arc(x, y, ballRadius, 0, Math.PI*2);
@@ -114,12 +114,15 @@ function drawBricks() {
         for(c=0; c<brickColumnCount; c++) {
                 for(r=0; r<brickRowCount; r++) {
                         if(bricks[c][r].status == 1) {
-                                var brickX = (r*(brickWidth+brickPadding))+brickOffsetLeft;
-                                var brickY = (c*(brickHeight+brickPadding))+brickOffsetTop;
+
+                                //address box
+                                var brickX = (r*(brickWidth+brickPadding))+brickOffsetLeft ;
+                                var brickY = (c*(brickHeight+brickPadding))+brickOffsetTop ;
 
                                 // dùng để tương tác giửa các khối
                                 bricks[c][r].x = brickX;
                                 bricks[c][r].y = brickY;
+
 
                                 //
                                 ctx.beginPath();
@@ -150,7 +153,17 @@ function draw() {
         drawScore();
         drawLives();
         collisionDetection();
+        let n =2;
+        // check view score
+        for(c=0; c<brickColumnCount; c++) {
+                for (r = 0; r < brickRowCount; r++) {
+                        if (bricks[c][r].status == 0) {
+                                n++;
+                        }
+                }
+        }
 
+        //check x+dx  là vị trí tiếp theo của pall??
         if(x + dx > canvas.width-ballRadius || x + dx < ballRadius) {
                 dx = -dx;
         }
@@ -163,30 +176,38 @@ function draw() {
                 }
                 else {
                         lives--;
-                        if(!lives) {
+                        if(lives === -1) {
                                 alert("GAME OVER");
                                 document.location.reload();
                         }
                         else {
                                 x = canvas.width/2;
                                 y = canvas.height-30;
-                                dx = 3;
-                                dy = -3;
                                 paddleX = (canvas.width-paddleWidth)/2;
                         }
                 }
-        }
 
+        }
+        //check <- and  ->
         if(rightPressed && paddleX < canvas.width-paddleWidth) {
-                paddleX += 7;
+                paddleX += n;
         }
         else if(leftPressed && paddleX > 0) {
-                paddleX -= 7;
+                paddleX -= n;
         }
 
         x += dx;
         y += dy;
-        requestAnimationFrame(draw);
+
 }
 draw();
-setInterval(draw, 1000);
+
+function stopgame() {
+        startting = !startting;
+        stop.textContent = startting ? 'Start' : 'Stop';
+        if(!startting)  xxx = setInterval(draw, 20);
+        else clearInterval(xxx);
+}
+xxx = setInterval(draw, 20);
+
+
